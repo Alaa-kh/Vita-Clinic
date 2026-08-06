@@ -1,0 +1,39 @@
+.page {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.header {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.header h1 {
+  font-size: var(--text-3xl);
+}
+
+.header p {
+  color: var(--color-ink-muted);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: var(--space-4);
+  }
+
+  .header h1 {
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+  }
+
+  .pagination {
+    gap: var(--space-2);
+  }
+}

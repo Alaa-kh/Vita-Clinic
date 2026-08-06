@@ -1,0 +1,25 @@
+.wrap {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding: var(--space-7);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-elevated);
+  color: var(--color-ink);
+}
+
+.title {
+  font-size: var(--text-xl);
+  color: var(--color-ink);
+}
+
+.description {
+  color: var(--color-ink-muted);
+  max-width: 42ch;
+}
+
+.error {
+  border-color: color-mix(in srgb, var(--color-danger) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg-elevated));
+}

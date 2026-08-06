@@ -1,0 +1,16 @@
+.wrap {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-7);
+  color: var(--color-ink-muted);
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  animation: soft-pulse 1s linear infinite;
+}
