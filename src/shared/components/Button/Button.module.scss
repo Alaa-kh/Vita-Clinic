@@ -5,8 +5,8 @@
   gap: var(--space-2);
   border: 1px solid transparent;
   border-radius: 999px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   cursor: pointer;
   transition:
     background var(--transition-fast),
@@ -14,7 +14,8 @@
     border-color var(--transition-fast),
     opacity var(--transition-fast),
     transform var(--transition-fast),
-    box-shadow var(--transition-fast);
+    box-shadow var(--transition-fast),
+    cursor var(--transition-fast);
 }
 
 .button:disabled {
@@ -27,19 +28,31 @@
   outline-offset: 2px;
 }
 
+.button:hover:not(:disabled) {
+  cursor: pointer;
+}
+
+.button:active:not(:disabled) {
+  cursor: grabbing;
+  transform: translateY(1px) scale(0.98);
+}
+
 .primary {
   background: var(--color-accent);
-  color: var(--color-ink-inverse);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
 }
 
 .primary:hover:not(:disabled) {
+  transform: translateY(-2px);
   background: var(--color-accent-strong);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-glow);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
 }
 
 .primary:active:not(:disabled) {
   opacity: 0.92;
+  cursor: grabbing;
 }
 
 .secondary {
@@ -50,6 +63,8 @@
 
 .secondary:hover:not(:disabled) {
   background: var(--color-bg-muted);
+  transform: translateY(-1px);
+  cursor: pointer;
 }
 
 .ghost {
@@ -58,7 +73,8 @@
 }
 
 .ghost:hover:not(:disabled) {
-  background: rgb(15 15 15 / 5%);
+  background: var(--nav-pill-bg);
+  cursor: pointer;
 }
 
 .danger {
@@ -68,6 +84,7 @@
 
 .danger:hover:not(:disabled) {
   opacity: 0.92;
+  cursor: pointer;
 }
 
 .sm {
@@ -78,16 +95,13 @@
 
 .md {
   min-height: 2.75rem;
-  padding: 0.65rem 1.2rem;
-  font-size: var(--text-sm);
+  padding: 0.55rem 1.1rem;
 }
 
 .lg {
   min-height: 3.15rem;
-  padding: 0.85rem 1.45rem;
-  font-size: var(--text-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  padding: 0.7rem 1.35rem;
+  font-size: var(--text-lg);
 }
 
 .fullWidth {

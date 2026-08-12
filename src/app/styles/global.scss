@@ -21,12 +21,35 @@ body {
   color: var(--color-ink);
   background: var(--page-gradient);
   background-attachment: fixed;
+  background-size: 120% 120%, 120% 120%, 100% 100%;
   transition: color var(--transition-med), background var(--transition-med);
+  animation: ambient-drift 28s ease-in-out infinite;
 }
 
 #root {
   min-height: 100vh;
   overflow-x: clip;
+}
+
+a,
+button,
+[role='button'],
+summary,
+label[for],
+select,
+.button {
+  cursor: pointer;
+}
+
+a:active,
+button:active:not(:disabled),
+[role='button']:active {
+  cursor: grabbing;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
 }
 
 img {
@@ -37,7 +60,6 @@ img {
 a {
   color: inherit;
   text-decoration: none;
-  transition: color var(--transition-fast), opacity var(--transition-fast);
 }
 
 button,
@@ -59,18 +81,60 @@ h4 {
   text-wrap: balance;
 }
 
-html[lang='ar'] {
-  --font-display: var(--font-arabic);
-  --font-body: var(--font-arabic);
+html[lang='ar'],
+html[dir='rtl'] {
+  --font-display: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  --font-body: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  --font-mono: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  --font-arabic: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+}
+
+html[lang='ar'] body,
+html[dir='rtl'] body,
+html[lang='ar'] button,
+html[dir='rtl'] button,
+html[lang='ar'] input,
+html[dir='rtl'] input,
+html[lang='ar'] select,
+html[dir='rtl'] select,
+html[lang='ar'] textarea,
+html[dir='rtl'] textarea,
+html[lang='ar'] a,
+html[dir='rtl'] a,
+html[lang='ar'] p,
+html[dir='rtl'] p,
+html[lang='ar'] span,
+html[dir='rtl'] span,
+html[lang='ar'] li,
+html[dir='rtl'] li,
+html[lang='ar'] label,
+html[dir='rtl'] label,
+html[lang='ar'] h1,
+html[dir='rtl'] h1,
+html[lang='ar'] h2,
+html[dir='rtl'] h2,
+html[lang='ar'] h3,
+html[dir='rtl'] h3,
+html[lang='ar'] h4,
+html[dir='rtl'] h4,
+html[lang='ar'] strong,
+html[dir='rtl'] strong,
+html[lang='ar'] small,
+html[dir='rtl'] small {
+  font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
 }
 
 html[lang='ar'] h1,
 html[lang='ar'] h2,
 html[lang='ar'] h3,
-html[lang='ar'] h4 {
+html[lang='ar'] h4,
+html[dir='rtl'] h1,
+html[dir='rtl'] h2,
+html[dir='rtl'] h3,
+html[dir='rtl'] h4 {
   font-weight: 700;
   letter-spacing: 0;
-  line-height: 1.28;
+  line-height: 1.35;
 }
 
 ::selection {
@@ -262,9 +326,37 @@ html[dir='rtl'] .reveal-visible {
   }
 }
 
+@keyframes bolt-slide {
+  0% {
+    transform: translateX(-120%) skewX(-12deg);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateX(220%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+@keyframes ambient-drift {
+  0%,
+  100% {
+    background-position: 0% 0%, 100% 0%, 0% 0%;
+  }
+  50% {
+    background-position: 8% 12%, 92% 8%, 0% 0%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  body {
+    animation: none;
   }
 
   *,

@@ -4,20 +4,29 @@ import { AuthLayout } from '@/app/layouts/AuthLayout'
 import { MainLayout } from '@/app/layouts/MainLayout'
 import { GuestRoute } from '@/app/router/GuestRoute'
 import { ProtectedRoute } from '@/app/router/ProtectedRoute'
-import { Spinner } from '@/shared/components/Spinner/Spinner'
+import { PageLoader } from '@/shared/components/PageLoader/PageLoader'
 import { ROUTES } from '@/shared/constants/routes'
 
-const HomePage = lazy(() =>
-  import('@/features/care/pages/HomePage').then((m) => ({ default: m.HomePage })),
+const StoreHomePage = lazy(() =>
+  import('@/features/shop/pages/StoreHomePage').then((m) => ({ default: m.StoreHomePage })),
 )
-const CarePage = lazy(() =>
-  import('@/features/care/pages/CarePage').then((m) => ({ default: m.CarePage })),
+const ShopPage = lazy(() =>
+  import('@/features/shop/pages/ShopPage').then((m) => ({ default: m.ShopPage })),
 )
-const CareDetailPage = lazy(() =>
-  import('@/features/care/pages/CareDetailPage').then((m) => ({ default: m.CareDetailPage })),
+const ProductDetailPage = lazy(() =>
+  import('@/features/shop/pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage })),
 )
-const CreateCarePage = lazy(() =>
-  import('@/features/care/pages/CreateCarePage').then((m) => ({ default: m.CreateCarePage })),
+const CartPage = lazy(() =>
+  import('@/features/shop/pages/CartPage').then((m) => ({ default: m.CartPage })),
+)
+const CheckoutPage = lazy(() =>
+  import('@/features/shop/pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })),
+)
+const OrdersPage = lazy(() =>
+  import('@/features/shop/pages/OrdersPage').then((m) => ({ default: m.OrdersPage })),
+)
+const TrackOrderPage = lazy(() =>
+  import('@/features/shop/pages/TrackOrderPage').then((m) => ({ default: m.TrackOrderPage })),
 )
 const FavoritesPage = lazy(() =>
   import('@/features/favorites/pages/FavoritesPage').then((m) => ({
@@ -33,9 +42,44 @@ const LoginPage = lazy(() =>
 const RegisterPage = lazy(() =>
   import('@/features/auth/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })),
 )
+const PlatformHubPage = lazy(() =>
+  import('@/features/platform/pages/PlatformHubPage').then((m) => ({ default: m.PlatformHubPage })),
+)
+const MapsPage = lazy(() =>
+  import('@/features/maps/pages/MapsPage').then((m) => ({ default: m.MapsPage })),
+)
+const BookingPage = lazy(() =>
+  import('@/features/booking/pages/BookingPage').then((m) => ({ default: m.BookingPage })),
+)
+const PaymentsPage = lazy(() =>
+  import('@/features/payments/pages/PaymentsPage').then((m) => ({ default: m.PaymentsPage })),
+)
+const ChatPage = lazy(() =>
+  import('@/features/realtime/pages/ChatPage').then((m) => ({ default: m.ChatPage })),
+)
+const CallPage = lazy(() =>
+  import('@/features/realtime/pages/CallPage').then((m) => ({ default: m.CallPage })),
+)
+const AiPage = lazy(() =>
+  import('@/features/ai/pages/AiPage').then((m) => ({ default: m.AiPage })),
+)
+const AnalyticsPage = lazy(() =>
+  import('@/features/analytics/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })),
+)
+const NotificationsPage = lazy(() =>
+  import('@/features/notifications/pages/NotificationsPage').then((m) => ({
+    default: m.NotificationsPage,
+  })),
+)
+const StoragePage = lazy(() =>
+  import('@/features/storage/pages/StoragePage').then((m) => ({ default: m.StoragePage })),
+)
+const SecurityPage = lazy(() =>
+  import('@/features/security/pages/SecurityPage').then((m) => ({ default: m.SecurityPage })),
+)
 
 function Lazy({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<Spinner />}>{children}</Suspense>
+  return <Suspense fallback={<PageLoader />}>{children}</Suspense>
 }
 
 export function AppRouter() {
@@ -47,29 +91,85 @@ export function AppRouter() {
           path: ROUTES.home,
           element: (
             <Lazy>
-              <HomePage />
+              <StoreHomePage />
             </Lazy>
           ),
         },
         {
-          path: ROUTES.care,
+          path: ROUTES.shop,
           element: (
             <Lazy>
-              <CarePage />
+              <ShopPage />
             </Lazy>
           ),
         },
         {
-          path: ROUTES.careDetail,
+          path: ROUTES.productDetail,
           element: (
             <Lazy>
-              <CareDetailPage />
+              <ProductDetailPage />
+            </Lazy>
+          ),
+        },
+        {
+          path: ROUTES.platform,
+          element: (
+            <Lazy>
+              <PlatformHubPage />
+            </Lazy>
+          ),
+        },
+        {
+          path: ROUTES.maps,
+          element: (
+            <Lazy>
+              <MapsPage />
+            </Lazy>
+          ),
+        },
+        {
+          path: ROUTES.ai,
+          element: (
+            <Lazy>
+              <AiPage />
+            </Lazy>
+          ),
+        },
+        {
+          path: ROUTES.cart,
+          element: (
+            <Lazy>
+              <CartPage />
             </Lazy>
           ),
         },
         {
           element: <ProtectedRoute />,
           children: [
+            {
+              path: ROUTES.checkout,
+              element: (
+                <Lazy>
+                  <CheckoutPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.orders,
+              element: (
+                <Lazy>
+                  <OrdersPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.trackOrder,
+              element: (
+                <Lazy>
+                  <TrackOrderPage />
+                </Lazy>
+              ),
+            },
             {
               path: ROUTES.favorites,
               element: (
@@ -86,16 +186,67 @@ export function AppRouter() {
                 </Lazy>
               ),
             },
-          ],
-        },
-        {
-          element: <ProtectedRoute roles={['provider']} />,
-          children: [
             {
-              path: ROUTES.createCare,
+              path: ROUTES.booking,
               element: (
                 <Lazy>
-                  <CreateCarePage />
+                  <BookingPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.payments,
+              element: (
+                <Lazy>
+                  <PaymentsPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.chat,
+              element: (
+                <Lazy>
+                  <ChatPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.call,
+              element: (
+                <Lazy>
+                  <CallPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.analytics,
+              element: (
+                <Lazy>
+                  <AnalyticsPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.notifications,
+              element: (
+                <Lazy>
+                  <NotificationsPage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.storage,
+              element: (
+                <Lazy>
+                  <StoragePage />
+                </Lazy>
+              ),
+            },
+            {
+              path: ROUTES.security,
+              element: (
+                <Lazy>
+                  <SecurityPage />
                 </Lazy>
               ),
             },

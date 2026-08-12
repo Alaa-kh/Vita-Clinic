@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import styles from '@/shared/components/ChatBot/ChatBot.module.scss'
@@ -11,12 +11,12 @@ interface ChatMessage {
 
 function replyFor(input: string, t: (key: string) => string): string {
   const value = input.toLowerCase()
-  if (/(حجز|موعد|book|appoint)/i.test(value)) return t('chat.replies.book')
-  if (/(فرع|branch|موقع|location)/i.test(value)) return t('chat.replies.branch')
-  if (/(عرض|سعر|price|offer|باقة)/i.test(value)) return t('chat.replies.offers')
-  if (/(أسنان|dental|tooth)/i.test(value)) return t('chat.replies.dental')
-  if (/(جلد|ليزر|derm|laser)/i.test(value)) return t('chat.replies.derm')
-  if (/(شعر|hair)/i.test(value)) return t('chat.replies.hair')
+  if (/(طلب|order|shop|متجر|شراء)/i.test(value)) return t('chat.replies.book')
+  if (/(تتبع|track|مندوب|courier|توصيل|delivery)/i.test(value)) return t('chat.replies.branch')
+  if (/(عرض|سعر|price|offer|خصم)/i.test(value)) return t('chat.replies.offers')
+  if (/(طعام|food|مطعم)/i.test(value)) return t('chat.replies.food')
+  if (/(بقالة|grocery|سوبر)/i.test(value)) return t('chat.replies.grocery')
+  if (/(إلكترون|electronics|جوال)/i.test(value)) return t('chat.replies.electronics')
   return t('chat.replies.fallback')
 }
 

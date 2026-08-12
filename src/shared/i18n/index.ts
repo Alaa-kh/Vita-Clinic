@@ -20,9 +20,27 @@ void i18n.use(initReactI18next).init({
 })
 
 export function applyDocumentLocale(locale: string): void {
-  document.documentElement.lang = locale
-  document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr'
-  localStorage.setItem(STORAGE_KEYS.locale, locale)
+  const normalized = locale.startsWith('ar') ? 'ar' : 'en'
+  const cairo = "'Cairo', 'Segoe UI', Tahoma, sans-serif"
+
+  document.documentElement.lang = normalized
+  document.documentElement.dir = normalized === 'ar' ? 'rtl' : 'ltr'
+
+  if (normalized === 'ar') {
+    document.documentElement.style.setProperty('--font-body', cairo)
+    document.documentElement.style.setProperty('--font-display', cairo)
+    document.documentElement.style.setProperty('--font-mono', cairo)
+    document.documentElement.style.setProperty('--font-arabic', cairo)
+    if (document.body) document.body.style.fontFamily = cairo
+  } else {
+    document.documentElement.style.removeProperty('--font-body')
+    document.documentElement.style.removeProperty('--font-display')
+    document.documentElement.style.removeProperty('--font-mono')
+    document.documentElement.style.removeProperty('--font-arabic')
+    if (document.body) document.body.style.fontFamily = ''
+  }
+
+  localStorage.setItem(STORAGE_KEYS.locale, normalized)
 }
 
 applyDocumentLocale(initialLng)

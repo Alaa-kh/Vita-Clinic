@@ -43,7 +43,9 @@ export function AppProviders({ children }: AppProvidersProps) {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <BrowserRouter>{children}</BrowserRouter>
+          <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}>
+            {children}
+          </BrowserRouter>
         </ThemeProvider>
       </QueryClientProvider>
     </Provider>

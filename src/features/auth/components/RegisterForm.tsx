@@ -26,7 +26,7 @@ export function RegisterForm() {
       email: '',
       password: '',
       fullName: '',
-      role: 'patient',
+      role: 'customer',
       phone: '',
     },
   })
@@ -66,8 +66,9 @@ export function RegisterForm() {
       <SelectField
         label={t('auth.role')}
         options={[
-          { value: 'patient', label: t('auth.roles.patient') },
-          { value: 'provider', label: t('auth.roles.provider') },
+          { value: 'customer', label: t('auth.roles.customer') },
+          { value: 'merchant', label: t('auth.roles.merchant') },
+          { value: 'courier', label: t('auth.roles.courier') },
         ]}
         {...register('role')}
       />

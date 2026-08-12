@@ -3,9 +3,7 @@
   gap: var(--space-5);
   position: relative;
   padding: 0 var(--space-6) var(--space-6);
-  background:
-    linear-gradient(180deg, transparent, rgb(0 163 181 / 4%) 100%),
-    var(--color-bg-elevated);
+  background: transparent;
 }
 
 .form > * {

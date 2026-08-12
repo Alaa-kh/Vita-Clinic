@@ -1,9 +1,10 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/features/auth/hooks/useAuth'
+import type { UserRole } from '@/features/auth/types/user'
 import { ROUTES } from '@/shared/constants/routes'
 
 interface ProtectedRouteProps {
-  roles?: Array<'patient' | 'provider'>
+  roles?: UserRole[]
 }
 
 export function ProtectedRoute({ roles }: ProtectedRouteProps) {

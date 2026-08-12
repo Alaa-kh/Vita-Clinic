@@ -1,8 +1,9 @@
 export const STORAGE_KEYS = {
-  accessToken: 'vita.accessToken',
-  refreshToken: 'vita.refreshToken',
-  locale: 'vita.locale',
-  theme: 'vita.theme',
-  promoDismissed: 'vita.promoDismissed',
-  chatDismissed: 'vita.chatDismissed',
+  accessToken: 'barq.accessToken',
+  refreshToken: 'barq.refreshToken',
+  locale: 'barq.locale',
+  theme: 'barq.theme',
+  promoDismissed: 'barq.promoDismissed',
+  chatDismissed: 'barq.chatDismissed',
+  guestCart: 'barq.guestCart',
 } as const

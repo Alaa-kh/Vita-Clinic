@@ -1,25 +1,37 @@
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { BrandMark } from '@/shared/components/BrandMark/BrandMark'
 import { LoginForm } from '@/features/auth/components/LoginForm'
+import { ROUTES } from '@/shared/constants/routes'
 import styles from '@/features/auth/pages/AuthPage.module.scss'
-
-const CLINIC_IMAGE =
-  'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1400&q=85'
 
 export function LoginPage() {
   const { t } = useTranslation()
 
   return (
     <section className={styles.panel}>
-      <div className={styles.visual} aria-hidden="true">
-        <img src={CLINIC_IMAGE} alt="" />
-        <div className={styles.visualCopy}>
-          <strong>{t('app.name')}</strong>
-          <p>{t('auth.visualLine')}</p>
+      <aside className={styles.brandPane} aria-hidden="true">
+        <div className={styles.orbit} />
+        <div className={styles.routeLine} />
+        <div className={styles.brandPaneInner}>
+          <span className={styles.boltBadge}>
+            <BrandMark />
+          </span>
+          <p className={styles.paneEyebrow}>{t('header.deliveryBadge')}</p>
+          <strong className={styles.paneTitle}>{t('app.name')}</strong>
+          <p className={styles.paneLine}>{t('auth.visualLine')}</p>
+          <ul className={styles.panePoints}>
+            <li>{t('auth.pointTrack')}</li>
+            <li>{t('auth.pointDispatch')}</li>
+            <li>{t('auth.pointPay')}</li>
+          </ul>
         </div>
-      </div>
+      </aside>
       <div className={styles.content}>
         <header className={styles.header}>
-          <p className={styles.brand}>{t('app.name')}</p>
+          <Link to={ROUTES.home} className={styles.brand}>
+            {t('app.name')}
+          </Link>
           <h1>{t('auth.loginTitle')}</h1>
           <p>{t('auth.loginSubtitle')}</p>
         </header>

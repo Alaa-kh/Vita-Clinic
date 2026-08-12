@@ -1,94 +1,86 @@
 import { Router } from 'express'
-import { randomUUID } from 'node:crypto'
-import { findCareById, getDb } from '../data/db.js'
-import {
-  optionalAuth,
-  requireProvider,
-  requireAuth,
-  type AuthenticatedRequest,
-} from '../middleware/auth.js'
-import type { CareMode, CareStatus, CurrencyCode, Specialty } from '../types.js'
+import { findProductById, getDb } from '../data/db.js'
+import { optionalAuth, requireAuth, requireMerchant, type AuthenticatedRequest } from '../middleware/auth.js'
 
+/**
+ * Legacy `/api/care` adapter — maps products into the older care DTO shape
+ * so remaining platform modules keep working during the VitaGo migration.
+ */
 export const careRouter = Router()
 
+function toCareDto(product: ReturnType<typeof findProductById>, isFavorite: boolean) {
+  if (!product) return null
+  return {
+    id: product.id,
+    title: product.title,
+    description: product.description,
+    price: product.price,
+    currency: product.currency,
+    careMode:
+      product.fulfillment === 'pickup'
+        ? 'in_person'
+        : product.fulfillment === 'both'
+          ? 'home_visit'
+          : 'telehealth',
+    specialty: product.category === 'food' || product.category === 'grocery' ? 'general' : 'dermatology',
+    status:
+      product.status === 'out_of_stock'
+        ? 'unavailable'
+        : product.status === 'low_stock'
+          ? 'busy'
+          : 'available',
+    experienceYears: product.prepMinutes,
+    languages: ['Arabic', 'English'],
+    city: product.city,
+    country: product.country,
+    clinicName: product.storeName,
+    address: product.address,
+    images: product.images,
+    tags: product.tags,
+    providerId: product.merchantId,
+    featured: product.featured,
+    lat: product.lat,
+    lng: product.lng,
+    isFavorite,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt,
+  }
+}
+
 careRouter.get('/', optionalAuth, (req: AuthenticatedRequest, res) => {
-  const {
-    q,
-    specialty,
-    careMode,
-    city,
-    status,
-    minPrice,
-    maxPrice,
-    featured,
-    page = '1',
-    pageSize = '12',
-  } = req.query as Record<string, string | undefined>
+  const { q, city, featured, page = '1', pageSize = '12', specialty, careMode, minPrice, maxPrice } =
+    req.query as Record<string, string | undefined>
 
-  let items = [...getDb().care]
-
+  let items = [...getDb().products]
   if (q) {
     const term = q.toLowerCase()
     items = items.filter(
       (item) =>
         item.title.toLowerCase().includes(term) ||
         item.description.toLowerCase().includes(term) ||
-        item.clinicName.toLowerCase().includes(term) ||
-        item.city.toLowerCase().includes(term) ||
-        item.tags.some((tag) => tag.toLowerCase().includes(term)),
+        item.tags.some((t) => t.toLowerCase().includes(term)),
     )
   }
-
-  if (specialty) {
-    items = items.filter((item) => item.specialty === specialty)
+  if (city) items = items.filter((i) => i.city.toLowerCase() === city.toLowerCase())
+  if (featured === 'true') items = items.filter((i) => i.featured)
+  if (minPrice) items = items.filter((i) => i.price >= Number(minPrice))
+  if (maxPrice) items = items.filter((i) => i.price <= Number(maxPrice))
+  if (specialty === 'dentistry' || specialty === 'general') {
+    items = items.filter((i) => i.category === 'food' || i.category === 'grocery' || i.category === 'pharmacy')
   }
-
-  if (careMode) {
-    items = items.filter((item) => item.careMode === careMode)
-  }
-
-  if (city) {
-    items = items.filter((item) => item.city.toLowerCase() === city.toLowerCase())
-  }
-
-  if (status) {
-    items = items.filter((item) => item.status === status)
-  } else {
-    items = items.filter((item) => item.status !== 'unavailable')
-  }
-
-  if (minPrice) {
-    items = items.filter((item) => item.price >= Number(minPrice))
-  }
-
-  if (maxPrice) {
-    items = items.filter((item) => item.price <= Number(maxPrice))
-  }
-
-  if (featured === 'true') {
-    items = items.filter((item) => item.featured)
-  }
-
-  items.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
+  if (careMode === 'telehealth') items = items.filter((i) => i.fulfillment === 'delivery')
+  if (careMode === 'in_person') items = items.filter((i) => i.fulfillment !== 'delivery')
 
   const pageNumber = Math.max(1, Number(page) || 1)
   const size = Math.min(50, Math.max(1, Number(pageSize) || 12))
   const start = (pageNumber - 1) * size
-  const paged = items.slice(start, start + size)
-
   const favoriteIds = new Set(
-    req.user
-      ? getDb()
-          .favorites.filter((f) => f.userId === req.user!.id)
-          .map((f) => f.careId)
-      : [],
+    req.user ? getDb().favorites.filter((f) => f.userId === req.user!.id).map((f) => f.careId) : [],
   )
 
+  const paged = items.slice(start, start + size)
   res.json({
-    items: paged.map((item) => ({
-      ...item,
-      isFavorite: favoriteIds.has(item.id),
-    })),
+    items: paged.map((p) => toCareDto(p, favoriteIds.has(p.id))),
     pagination: {
       page: pageNumber,
       pageSize: size,
@@ -99,117 +91,20 @@ careRouter.get('/', optionalAuth, (req: AuthenticatedRequest, res) => {
 })
 
 careRouter.get('/:id', optionalAuth, (req: AuthenticatedRequest, res) => {
-  const item = findCareById(req.params.id!)
+  const item = findProductById(req.params.id!)
   if (!item) {
     res.status(404).json({ message: 'Care listing not found', code: 'NOT_FOUND' })
     return
   }
-
   const isFavorite = req.user
     ? getDb().favorites.some((f) => f.userId === req.user!.id && f.careId === item.id)
     : false
-
-  res.json({ care: { ...item, isFavorite } })
+  res.json({ care: toCareDto(item, isFavorite) })
 })
 
-careRouter.post('/', requireAuth, requireProvider, (req: AuthenticatedRequest, res) => {
-  const body = req.body as Partial<{
-    title: string
-    description: string
-    price: number
-    currency: CurrencyCode
-    careMode: CareMode
-    specialty: Specialty
-    experienceYears: number
-    languages: string[]
-    city: string
-    country: string
-    clinicName: string
-    address: string
-    images: string[]
-    tags: string[]
-    featured: boolean
-  }>
-
-  if (!body.title || !body.description || body.price == null || !body.clinicName) {
-    res.status(400).json({ message: 'Missing required care fields', code: 'VALIDATION_ERROR' })
-    return
-  }
-
-  const now = new Date().toISOString()
-  const care = {
-    id: randomUUID(),
-    title: body.title.trim(),
-    description: body.description.trim(),
-    price: Number(body.price),
-    currency: body.currency ?? 'USD',
-    careMode: body.careMode ?? 'in_person',
-    specialty: body.specialty ?? 'general',
-    status: 'available' as CareStatus,
-    experienceYears: Number(body.experienceYears ?? 1),
-    languages: body.languages?.map((l) => l.trim()).filter(Boolean) ?? ['English'],
-    city: (body.city ?? '').trim(),
-    country: (body.country ?? '').trim(),
-    clinicName: body.clinicName.trim(),
-    address: (body.address ?? '').trim(),
-    images:
-      body.images?.filter(Boolean).length
-        ? body.images.filter(Boolean)
-        : ['https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1200&q=80'],
-    tags: body.tags?.map((tag) => tag.trim()).filter(Boolean) ?? [],
-    providerId: req.user!.id,
-    featured: Boolean(body.featured),
-    createdAt: now,
-    updatedAt: now,
-  }
-
-  getDb().care.unshift(care)
-  res.status(201).json({ care: { ...care, isFavorite: false } })
-})
-
-careRouter.patch('/:id', requireAuth, requireProvider, (req: AuthenticatedRequest, res) => {
-  const item = findCareById(req.params.id!)
-  if (!item) {
-    res.status(404).json({ message: 'Care listing not found', code: 'NOT_FOUND' })
-    return
-  }
-
-  if (item.providerId !== req.user!.id) {
-    res.status(403).json({ message: 'You can only edit your own listings', code: 'FORBIDDEN' })
-    return
-  }
-
-  const body = req.body as Partial<typeof item>
-  Object.assign(item, {
-    ...body,
-    id: item.id,
-    providerId: item.providerId,
-    createdAt: item.createdAt,
-    updatedAt: new Date().toISOString(),
+careRouter.post('/', requireAuth, requireMerchant, (_req, res) => {
+  res.status(410).json({
+    message: 'Use POST /api/products to create store listings',
+    code: 'GONE',
   })
-
-  const isFavorite = getDb().favorites.some(
-    (f) => f.userId === req.user!.id && f.careId === item.id,
-  )
-
-  res.json({ care: { ...item, isFavorite } })
-})
-
-careRouter.delete('/:id', requireAuth, requireProvider, (req: AuthenticatedRequest, res) => {
-  const db = getDb()
-  const index = db.care.findIndex((item) => item.id === req.params.id)
-  if (index < 0) {
-    res.status(404).json({ message: 'Care listing not found', code: 'NOT_FOUND' })
-    return
-  }
-
-  const item = db.care[index]!
-  if (item.providerId !== req.user!.id) {
-    res.status(403).json({ message: 'You can only delete your own listings', code: 'FORBIDDEN' })
-    return
-  }
-
-  db.care.splice(index, 1)
-  db.favorites = db.favorites.filter((f) => f.careId !== item.id)
-  res.status(204).send()
 })

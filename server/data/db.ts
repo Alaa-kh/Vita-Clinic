@@ -1,11 +1,30 @@
 import bcrypt from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
-import type { CareRecord, Database, UserRecord } from '../types.js'
+import { PRODUCT_SEEDS } from './productSeed.js'
+import { loadPersistedSlice, schedulePersist } from './persist.js'
+import { coordsForCity, seedPlatformCollections } from './platformSeed.js'
+import type { Database, ProductRecord, UserRecord } from '../types.js'
 
 const db: Database = {
   users: [],
+  products: [],
   care: [],
   favorites: [],
+  carts: [],
+  orders: [],
+  branches: [],
+  bookings: [],
+  payments: [],
+  savedCards: [],
+  notifications: [],
+  chatMessages: [],
+  sessions: [],
+  auditLogs: [],
+  files: [],
+  liveTracks: [],
+  otps: [],
+  featureFlags: {},
+  rateLimitHits: new Map(),
 }
 
 let seeded = false
@@ -22,8 +41,38 @@ export function findUserById(id: string): UserRecord | undefined {
   return db.users.find((user) => user.id === id)
 }
 
-export function findCareById(id: string): CareRecord | undefined {
-  return db.care.find((item) => item.id === id)
+export function findProductById(id: string): ProductRecord | undefined {
+  return db.products.find((item) => item.id === id)
+}
+
+export function findCareById(id: string): ProductRecord | undefined {
+  return findProductById(id)
+}
+
+export function pushAudit(
+  userId: string | null,
+  action: string,
+  resource: string,
+  meta: Record<string, unknown> = {},
+): void {
+  db.auditLogs.unshift({
+    id: randomUUID(),
+    userId,
+    action,
+    resource,
+    meta,
+    createdAt: new Date().toISOString(),
+  })
+  if (db.auditLogs.length > 500) db.auditLogs.length = 500
+}
+
+export function getOrCreateCart(userId: string) {
+  let cart = db.carts.find((c) => c.userId === userId)
+  if (!cart) {
+    cart = { userId, items: [], updatedAt: new Date().toISOString() }
+    db.carts.push(cart)
+  }
+  return cart
 }
 
 export function seedDatabase(): void {
@@ -31,265 +80,152 @@ export function seedDatabase(): void {
 
   const passwordHash = bcrypt.hashSync('Password123!', 10)
 
-  const provider: UserRecord = {
+  const merchant: UserRecord = {
     id: randomUUID(),
-    email: 'provider@vita.care',
+    email: 'merchant@barq.app',
     passwordHash,
-    fullName: 'د. مايا رحمة',
-    role: 'provider',
+    fullName: 'BARQ Merchant',
+    role: 'merchant',
     phone: '+966501112233',
+    totpSecret: null,
+    totpEnabled: false,
+    oauthProvider: null,
     createdAt: new Date().toISOString(),
   }
 
-  const patient: UserRecord = {
+  const customer: UserRecord = {
     id: randomUUID(),
-    email: 'patient@vita.care',
+    email: 'customer@barq.app',
     passwordHash,
-    fullName: 'عمر فرحات',
-    role: 'patient',
+    fullName: 'Sara Al-Harbi',
+    role: 'customer',
     phone: '+966509998877',
+    totpSecret: null,
+    totpEnabled: false,
+    oauthProvider: null,
     createdAt: new Date().toISOString(),
   }
 
-  db.users.push(provider, patient)
+  const courier: UserRecord = {
+    id: randomUUID(),
+    email: 'courier@barq.app',
+    passwordHash,
+    fullName: 'Omar Courier',
+    role: 'courier',
+    phone: '+966507778899',
+    totpSecret: null,
+    totpEnabled: false,
+    oauthProvider: null,
+    createdAt: new Date().toISOString(),
+  }
+
+  const admin: UserRecord = {
+    id: randomUUID(),
+    email: 'admin@barq.app',
+    passwordHash,
+    fullName: 'BARQ Admin',
+    role: 'admin',
+    phone: '+966500000000',
+    totpSecret: null,
+    totpEnabled: false,
+    oauthProvider: null,
+    createdAt: new Date().toISOString(),
+  }
+
+  db.users.push(merchant, customer, courier, admin)
+  seedPlatformCollections(db)
 
   const now = new Date().toISOString()
-  const seedCare: Omit<CareRecord, 'id' | 'providerId' | 'createdAt' | 'updatedAt'>[] = [
-    {
-      title: 'زراعة الأسنان شامل الخطة العلاجية',
-      description:
-        'زراعة أسنان بتقنيات حديثة مع خطة علاجية كاملة ومتابعة بعد الإجراء في عيادات فيتا.',
-      price: 1599,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dentistry',
-      status: 'available',
-      experienceYears: 12,
-      languages: ['Arabic', 'English'],
-      city: 'Riyadh',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الأسنان — الرياض',
-      address: 'حي النرجس، شارع أنس بن مالك',
-      images: ['https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=1200&q=80'],
-      tags: ['عرض الصيف', 'زراعة', 'خطة علاجية'],
-      featured: true,
-    },
-    {
-      title: 'تركيبات الزيركون الألمانية',
-      description: 'تركيبات زيركون ألمانية عالية الجودة لمظهر طبيعي ومتانة طويلة الأمد.',
-      price: 599,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dentistry',
-      status: 'available',
-      experienceYears: 10,
-      languages: ['Arabic', 'English'],
-      city: 'Jeddah',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الأسنان — جدة',
-      address: 'حي الشاطئ، شارع الأمير سلطان',
-      images: ['https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=1200&q=80'],
-      tags: ['زيركون', 'عرض الصيف'],
-      featured: true,
-    },
-    {
-      title: 'تنظيف وتبييض الأسنان بالليزر',
-      description: 'جلسة تنظيف عميق مع تبييض ليزر لنتيجة فورية وابتسامة أفتح.',
-      price: 549,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dentistry',
-      status: 'available',
-      experienceYears: 8,
-      languages: ['Arabic', 'English'],
-      city: 'Khobar',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الأسنان — الخبر',
-      address: 'الخبر الشمالية، شارع البيبسي',
-      images: ['https://images.unsplash.com/photo-1609840114035-3c981b782dfe?w=1200&q=80'],
-      tags: ['تبييض', 'ليزر', 'عرض'],
-      featured: true,
-    },
-    {
-      title: 'تقويم الأسنان',
-      description: 'تقويم شفاف أو تقليدي حسب الحالة مع متابعة دورية حتى النتيجة النهائية.',
-      price: 2699,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dentistry',
-      status: 'available',
-      experienceYears: 11,
-      languages: ['Arabic', 'English'],
-      city: 'Dammam',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الأسنان — الدمام',
-      address: 'حي طيبة، طريق الملك فهد',
-      images: ['https://images.unsplash.com/photo-1598256989800-fe5f95da9787?w=1200&q=80'],
-      tags: ['تقويم', 'ابتسامة'],
-      featured: true,
-    },
-    {
-      title: '1 مل فيلر جوفيديرم',
-      description: 'فيلر جوفيديرم أصلي لتعبئة وتحديد الوجه مع نتائج طبيعية.',
-      price: 900,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dermatology',
-      status: 'available',
-      experienceYears: 9,
-      languages: ['Arabic', 'English'],
-      city: 'Riyadh',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الجلدية — الرياض',
-      address: 'حي البديعة',
-      images: ['https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=1200&q=80'],
-      tags: ['فيلر', 'تجميل', 'عرض'],
-      featured: true,
-    },
-    {
-      title: 'بوتوكس وجه كامل مع ماسك كولاجين',
-      description: 'بوتوكس لتهدئة التجاعيد مع ماسك كولاجين للنضارة بعد الجلسة.',
-      price: 1100,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dermatology',
-      status: 'available',
-      experienceYears: 10,
-      languages: ['Arabic', 'English'],
-      city: 'Jeddah',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الجلدية — جدة',
-      address: 'حي المروة',
-      images: ['https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=1200&q=80'],
-      tags: ['بوتوكس', 'نضارة'],
-      featured: true,
-    },
-    {
-      title: '3 جلسات ليزر إزالة الشعر',
-      description: 'باقة ثلاث جلسات ليزر لمناطق مختارة بتقنيات آمنة للنساء والرجال.',
-      price: 800,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dermatology',
-      status: 'available',
-      experienceYears: 7,
-      languages: ['Arabic'],
-      city: 'Riyadh',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الليزر — الرياض',
-      address: 'ظهرة لبن',
-      images: ['https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=1200&q=80'],
-      tags: ['ليزر', 'باقة'],
-      featured: true,
-    },
-    {
-      title: 'زراعة الشعر حتى 2000 بصيلة',
-      description: 'زراعة شعر بتقنيات متقدمة ونتائج مضمونة مع متابعة ما بعد الزراعة.',
-      price: 4999,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dermatology',
-      status: 'available',
-      experienceYears: 14,
-      languages: ['Arabic', 'English'],
-      city: 'Riyadh',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا زراعة الشعر',
-      address: 'حي الملقا',
-      images: ['https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1200&q=80'],
-      tags: ['زراعة شعر', 'حملة'],
-      featured: true,
-    },
-    {
-      title: 'جلسة بلازما للوجه أو الشعر',
-      description: 'بلازما غنية بالصفائح لتحفيز النضارة أو تقوية فروة الرأس.',
-      price: 500,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dermatology',
-      status: 'available',
-      experienceYears: 6,
-      languages: ['Arabic'],
-      city: 'Khobar',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الجلدية — الخبر',
-      address: 'العقربية',
-      images: ['https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=1200&q=80'],
-      tags: ['بلازما', 'عرض'],
-      featured: false,
-    },
-    {
-      title: 'كشف طبي عام مع استشارة',
-      description: 'كشف مع طبيب عام وتشخيص أولي وخطة متابعة واضحة.',
-      price: 150,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'general',
-      status: 'available',
-      experienceYears: 12,
-      languages: ['Arabic', 'English'],
-      city: 'Dammam',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الطبي — الدمام',
-      address: 'الفيصلية',
-      images: ['https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=1200&q=80'],
-      tags: ['كشف', 'طبي'],
-      featured: false,
-    },
-    {
-      title: 'استشارة جلدية عن بُعد',
-      description: 'استشارة فيديو آمنة مع أخصائي جلدية لمراجعة الصور والخطة العلاجية.',
-      price: 120,
-      currency: 'SAR',
-      careMode: 'telehealth',
-      specialty: 'dermatology',
-      status: 'available',
-      experienceYears: 9,
-      languages: ['Arabic', 'English'],
-      city: 'Remote',
-      country: 'Online',
-      clinicName: 'فيتا عن بُعد',
-      address: 'جلسة فيديو مشفّرة',
-      images: ['https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1200&q=80'],
-      tags: ['عن بعد', 'جلدية'],
-      featured: true,
-    },
-    {
-      title: 'د. سارة التركي — أسنان',
-      description: 'استشارية أسنان خبرة واسعة في التجميل والزراعة وتقويم الحالات المعقدة.',
-      price: 200,
-      currency: 'SAR',
-      careMode: 'in_person',
-      specialty: 'dentistry',
-      status: 'available',
-      experienceYears: 15,
-      languages: ['Arabic', 'English'],
-      city: 'Jeddah',
-      country: 'Saudi Arabia',
-      clinicName: 'فيتا الأسنان — جدة المروة',
-      address: 'شارع حراء، حي المروة',
-      images: ['https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=1200&q=80'],
-      tags: ['طبيبة', 'استشارية'],
-      featured: true,
-    },
-  ]
+  const persisted = loadPersistedSlice()
+  const canReuseCatalog =
+    Boolean(persisted?.products?.length) &&
+    (persisted?.products.length ?? 0) >= PRODUCT_SEEDS.length
 
-  for (const seed of seedCare) {
-    db.care.push({
-      ...seed,
-      id: randomUUID(),
-      providerId: provider.id,
-      createdAt: now,
-      updatedAt: now,
-    })
+  if (canReuseCatalog && persisted) {
+    db.products = persisted.products
+    db.orders = persisted.orders ?? []
+    db.favorites = persisted.favorites ?? []
+    db.carts = persisted.carts ?? []
+    db.notifications = persisted.notifications ?? []
+    db.featureFlags = {
+      ...db.featureFlags,
+      ...persisted.featureFlags,
+      ecommerce: true,
+      delivery: true,
+      liveTracking: true,
+      cart: true,
+    }
+  } else {
+    for (const seed of PRODUCT_SEEDS) {
+      const coords = coordsForCity(seed.city)
+      const product: ProductRecord = {
+        ...seed,
+        ...coords,
+        id: randomUUID(),
+        merchantId: merchant.id,
+        createdAt: now,
+        updatedAt: now,
+      }
+      db.products.push(product)
+    }
+
+    if (persisted) {
+      db.orders = persisted.orders ?? []
+      db.carts = persisted.carts ?? []
+    }
+
+    if (db.products[0]) {
+      db.favorites.push({ userId: customer.id, careId: db.products[0].id })
+    }
+    if (db.products[2]) {
+      db.favorites.push({ userId: customer.id, careId: db.products[2].id })
+    }
+
+    db.notifications.push(
+      {
+        id: randomUUID(),
+        userId: customer.id,
+        title: 'Welcome to BARQ',
+        body: 'Shop, checkout, and track live delivery on the map.',
+        channel: 'in_app',
+        read: false,
+        scheduledFor: null,
+        createdAt: now,
+      },
+      {
+        id: randomUUID(),
+        userId: customer.id,
+        title: 'Free delivery today',
+        body: 'Orders over 100 SAR — no delivery fee until midnight.',
+        channel: 'push',
+        read: false,
+        scheduledFor: null,
+        createdAt: now,
+      },
+    )
+
+    db.featureFlags = {
+      ...db.featureFlags,
+      ecommerce: true,
+      delivery: true,
+      liveTracking: true,
+      cart: true,
+    }
   }
 
-  if (db.care[0]) {
-    db.favorites.push({ userId: patient.id, careId: db.care[0].id })
-  }
-  if (db.care[4]) {
-    db.favorites.push({ userId: patient.id, careId: db.care[4].id })
-  }
+  // Keep care synced for legacy platform adapters
+  db.care = db.products
 
+  db.savedCards.push({
+    id: randomUUID(),
+    userId: customer.id,
+    brand: 'visa',
+    last4: '4242',
+    expMonth: 12,
+    expYear: 2028,
+    isDefault: true,
+  })
+
+  schedulePersist(db)
   seeded = true
 }

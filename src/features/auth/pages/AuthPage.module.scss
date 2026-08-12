@@ -6,60 +6,160 @@
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   padding: 0;
   overflow: hidden;
-  border: 0;
+  border: 1px solid var(--color-border);
   border-radius: 1.75rem;
   background: var(--color-bg-elevated);
   box-shadow: var(--shadow-md);
   animation: auth-panel-in 620ms var(--ease-spring) both;
 }
 
-.visual {
+.brandPane {
   position: relative;
   min-height: 100%;
   overflow: hidden;
   color: var(--color-ink-inverse);
+  background:
+    radial-gradient(ellipse 70% 55% at 20% 15%, rgb(163 230 53 / 28%), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 85%, rgb(20 184 166 / 22%), transparent 50%),
+    linear-gradient(155deg, var(--color-surface) 0%, var(--color-surface-soft) 100%);
 }
 
-.visual img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  animation: auth-visual-zoom 18s var(--ease-out) infinite alternate;
+.orbit {
+  position: absolute;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 50%;
+  border: 1px solid rgb(163 230 53 / 28%);
+  inset-inline-end: -4rem;
+  top: 12%;
+  animation: auth-orbit 14s linear infinite;
 }
 
-.visual::after {
+.orbit::before,
+.orbit::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(160deg, rgb(10 79 88 / 78%) 0%, rgb(10 79 88 / 28%) 48%, rgb(0 163 181 / 55%) 100%),
-    linear-gradient(0deg, rgb(10 79 88 / 55%), transparent 42%);
+  inset: 18%;
+  border-radius: 50%;
+  border: 1px dashed rgb(20 184 166 / 35%);
 }
 
-.visualCopy {
+.orbit::after {
+  inset: 36%;
+  border-style: solid;
+  border-color: rgb(163 230 53 / 22%);
+}
+
+.routeLine {
   position: absolute;
-  inset: 0;
+  inset-inline: 12%;
+  bottom: 22%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-promo), var(--color-accent), transparent);
+  opacity: 0.75;
+  animation: auth-route 2.6s ease-in-out infinite;
+}
+
+.routeLine::before {
+  content: '⚡';
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  animation: auth-bolt 2.6s ease-in-out infinite;
+}
+
+.brandPaneInner {
+  position: relative;
   z-index: 1;
   display: grid;
   align-content: end;
   gap: var(--space-3);
+  min-height: 100%;
   padding: var(--space-6);
 }
 
-.visualCopy strong {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
+.boltBadge {
+  display: inline-grid;
+  place-items: center;
+  width: 3.1rem;
+  height: 3.1rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #0e1116;
+  box-shadow: var(--shadow-glow);
+  animation: auth-item-in 500ms var(--ease-out) 80ms both;
 }
 
-.visualCopy p {
+.boltBadge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.paneEyebrow {
+  margin: 0;
+  color: var(--color-promo);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: auth-item-in 500ms var(--ease-out) 120ms both;
+}
+
+.paneTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  background: linear-gradient(120deg, #fff 10%, #bef264 55%, var(--color-accent) 100%);
+  background-size: 160% 160%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation:
+    auth-item-in 500ms var(--ease-out) 160ms both,
+    brand-shine 6s ease-in-out infinite;
+}
+
+.paneLine {
   margin: 0;
   max-width: 28ch;
-  color: rgb(255 255 255 / 86%);
+  color: rgb(245 248 255 / 82%);
   font-size: var(--text-sm);
   line-height: 1.65;
+  animation: auth-item-in 500ms var(--ease-out) 200ms both;
+}
+
+.panePoints {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+  animation: auth-item-in 500ms var(--ease-out) 240ms both;
+}
+
+.panePoints li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: rgb(245 248 255 / 88%);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.panePoints li::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-promo);
+  box-shadow: 0 0 0 4px rgb(163 230 53 / 18%);
+  flex-shrink: 0;
 }
 
 .content {
@@ -67,7 +167,8 @@
   align-content: start;
   min-width: 0;
   background:
-    radial-gradient(circle at 100% 0%, rgb(0 163 181 / 10%), transparent 42%),
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-promo) 14%, transparent), transparent 42%),
+    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 40%),
     var(--color-bg-elevated);
 }
 
@@ -80,6 +181,7 @@
 
 .header h1 {
   font-size: var(--text-2xl);
+  color: var(--color-ink);
   animation: auth-item-in 480ms var(--ease-out) 120ms both;
 }
 
@@ -92,6 +194,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  width: fit-content;
   font-family: var(--font-display);
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -100,12 +203,16 @@
 }
 
 .brand::before {
-  content: '';
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 999px;
-  background: var(--color-accent);
-  box-shadow: 0 0 0 4px var(--color-accent-soft);
+  content: '⚡';
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.45rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  background: var(--color-surface);
+  color: var(--color-promo);
 }
 
 @keyframes auth-panel-in {
@@ -130,12 +237,51 @@
   }
 }
 
-@keyframes auth-visual-zoom {
+@keyframes auth-orbit {
   from {
-    transform: scale(1);
+    transform: rotate(0deg);
   }
   to {
-    transform: scale(1.08);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes auth-route {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleX(0.85);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes auth-bolt {
+  0% {
+    inset-inline-start: 0%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    inset-inline-start: 92%;
+    opacity: 0;
+  }
+}
+
+@keyframes brand-shine {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 
@@ -145,16 +291,20 @@
     grid-template-columns: 1fr;
   }
 
-  .visual {
-    min-height: 12.5rem;
+  .brandPane {
+    min-height: 13rem;
   }
 
-  .visualCopy {
+  .brandPaneInner {
     padding: var(--space-5);
   }
 
-  .visualCopy strong {
-    font-size: 1.65rem;
+  .paneTitle {
+    font-size: 2rem;
+  }
+
+  .panePoints {
+    display: none;
   }
 }
 
@@ -172,8 +322,8 @@
     font-size: clamp(1.4rem, 6vw, 1.85rem);
   }
 
-  .visual {
-    min-height: 10.5rem;
+  .brandPane {
+    min-height: 11rem;
   }
 }
 
@@ -183,12 +333,24 @@
   }
 }
 
+html[lang='ar'] .paneEyebrow {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .panel,
   .brand,
   .header h1,
   .header p,
-  .visual img {
+  .boltBadge,
+  .paneEyebrow,
+  .paneTitle,
+  .paneLine,
+  .panePoints,
+  .orbit,
+  .routeLine,
+  .routeLine::before {
     animation: none;
   }
 }

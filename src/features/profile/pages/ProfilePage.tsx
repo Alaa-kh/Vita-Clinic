@@ -31,7 +31,7 @@ export function ProfilePage() {
         <div>
           <dt>{t('profile.role')}</dt>
           <dd>
-            {user.role === 'provider' ? t('auth.roles.provider') : t('auth.roles.patient')}
+            {t(`auth.roles.${user.role}`)}
           </dd>
         </div>
         {user.phone ? (
