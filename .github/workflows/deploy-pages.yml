@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -30,12 +28,27 @@ jobs:
           VITE_APP_NAME: BARQ
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
           VITE_WS_URL: ${{ vars.VITE_WS_URL }}
-        run: npm run build
-      - name: SPA fallback for GitHub Pages
-        run: cp dist/index.html dist/404.html
-      - name: Deploy to gh-pages branch
+        run: |
+          npm run build
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+      - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           force_orphan: true
+      - name: Sync docs/ on main for Pages (main/docs)
+        run: |
+          rm -rf docs
+          mkdir docs
+          cp -R dist/. docs/
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --cached --quiet; then
+            echo "No docs changes"
+          else
+            git commit -m "chore: sync docs for GitHub Pages"
+            git push
+          fi
