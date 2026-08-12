@@ -1,0 +1,1 @@
+function e(e,t,n=`en`){return new Intl.NumberFormat(n===`ar`?`ar-AE`:`en-AE`,{style:`currency`,currency:t,maximumFractionDigits:0}).format(e)}function t(e,t=`en`){return new Intl.DateTimeFormat(t===`ar`?`ar`:`en`,{year:`numeric`,month:`short`,day:`numeric`}).format(new Date(e))}export{t as n,e as t};

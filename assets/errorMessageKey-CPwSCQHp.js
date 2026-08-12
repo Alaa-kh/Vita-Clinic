@@ -1,0 +1,1 @@
+var e={UNAUTHORIZED:`errors.unauthorized`,FORBIDDEN:`errors.forbidden`,NOT_FOUND:`errors.notFound`,VALIDATION_ERROR:`errors.validation`,EMAIL_TAKEN:`errors.emailTaken`,INVALID_CREDENTIALS:`errors.invalidCredentials`,NETWORK_ERROR:`errors.network`,INTERNAL_ERROR:`errors.generic`,UNKNOWN:`errors.generic`};function t(t){return e[t]}export{t};
