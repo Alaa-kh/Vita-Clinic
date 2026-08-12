@@ -10,31 +10,9 @@ favoritesRouter.get('/', requireAuth, (req: AuthenticatedRequest, res) => {
     .filter((f) => f.userId === req.user!.id)
     .map((f) => f.careId)
 
-  const items = db.products
+  const items = db.care
     .filter((item) => favoriteIds.includes(item.id))
-    .map((item) => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      price: item.price,
-      currency: item.currency,
-      careMode: 'telehealth',
-      specialty: 'general',
-      status: item.status === 'out_of_stock' ? 'unavailable' : 'available',
-      experienceYears: item.prepMinutes,
-      languages: ['Arabic', 'English'],
-      city: item.city,
-      country: item.country,
-      clinicName: item.storeName,
-      address: item.address,
-      images: item.images,
-      tags: item.tags,
-      providerId: item.merchantId,
-      featured: item.featured,
-      isFavorite: true,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    }))
+    .map((item) => ({ ...item, isFavorite: true }))
 
   res.json({ items })
 })
@@ -53,19 +31,7 @@ favoritesRouter.post('/:careId', requireAuth, (req: AuthenticatedRequest, res) =
     db.favorites.push({ userId: req.user!.id, careId: item.id })
   }
 
-  res.status(201).json({
-    care: {
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      price: item.price,
-      currency: item.currency,
-      images: item.images,
-      clinicName: item.storeName,
-      city: item.city,
-      isFavorite: true,
-    },
-  })
+  res.status(201).json({ care: { ...item, isFavorite: true } })
 })
 
 favoritesRouter.delete('/:careId', requireAuth, (req: AuthenticatedRequest, res) => {

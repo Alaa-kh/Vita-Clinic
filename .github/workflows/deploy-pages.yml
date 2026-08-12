@@ -22,12 +22,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Build storefront
+      - name: Build clinic site
         env:
           VITE_BASE: /Vita-Clinic/
-          VITE_APP_NAME: BARQ
+          VITE_APP_NAME: Vita
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-          VITE_WS_URL: ${{ vars.VITE_WS_URL }}
         run: |
           npm run build
           cp dist/index.html dist/404.html

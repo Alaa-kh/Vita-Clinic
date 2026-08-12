@@ -2,7 +2,6 @@ import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { config } from '@/shared/config/env'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
 import { mapApiError } from '@/shared/errors/mapApiError'
-import i18n from '@/shared/i18n'
 
 type TokenGetter = () => string | null
 type TokenSetter = (accessToken: string, refreshToken: string) => void
@@ -44,7 +43,6 @@ apiClient.interceptors.request.use((requestConfig: InternalAxiosRequestConfig) =
   if (token) {
     requestConfig.headers.Authorization = `Bearer ${token}`
   }
-  requestConfig.headers['Accept-Language'] = i18n.language?.startsWith('ar') ? 'ar' : 'en'
   return requestConfig
 })
 

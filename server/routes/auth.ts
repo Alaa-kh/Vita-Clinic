@@ -55,8 +55,7 @@ authRouter.post('/register', (req, res) => {
     return
   }
 
-  const userRole: UserRole =
-    role === 'merchant' || role === 'provider' ? 'merchant' : role === 'courier' ? 'courier' : 'customer'
+  const userRole: UserRole = role === 'provider' ? 'provider' : 'patient'
   const user = {
     id: randomUUID(),
     email: email.toLowerCase().trim(),
@@ -64,9 +63,6 @@ authRouter.post('/register', (req, res) => {
     fullName: fullName.trim(),
     role: userRole,
     phone: phone?.trim() || null,
-    totpSecret: null,
-    totpEnabled: false,
-    oauthProvider: null as 'google' | 'apple' | null,
     createdAt: new Date().toISOString(),
   }
 

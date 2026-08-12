@@ -1,0 +1,1 @@
+import{i as e}from"./StateMessage-BgqQFHLG.js";import{t}from"./queryKeys-BCxq3Fwi.js";import{t as n}from"./careService-uNKIPgFD.js";function r(r){return e({queryKey:t.care.list(r),queryFn:()=>n.list(r)})}export{r as t};

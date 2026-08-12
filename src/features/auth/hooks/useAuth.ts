@@ -16,8 +16,7 @@ export function useAuth() {
     status,
     bootstrapped,
     isAuthenticated: status === 'authenticated' && Boolean(user),
-    isMerchant: user?.role === 'merchant' || user?.role === 'admin',
-    isProvider: user?.role === 'merchant' || user?.role === 'admin',
+    isProvider: user?.role === 'provider',
     logout,
   }
 }

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/shared/components/Button/Button'
 import { ROUTES } from '@/shared/constants/routes'
 import { STORAGE_KEYS } from '@/shared/constants/storageKeys'
-import logoUrl from '@/assets/barq-logo.png'
 import styles from '@/shared/components/PromoPopup/PromoPopup.module.scss'
 
 export function PromoPopup() {
@@ -48,7 +47,10 @@ export function PromoPopup() {
           ×
         </button>
         <div className={styles.media} aria-hidden="true">
-          <img src={logoUrl} alt="" />
+          <img
+            src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=1200&q=80"
+            alt=""
+          />
           <span className={styles.badge}>{t('promo.badge')}</span>
         </div>
         <div className={styles.body}>
@@ -57,7 +59,7 @@ export function PromoPopup() {
           <p>{t('promo.body')}</p>
           <p className={styles.price}>{t('promo.price')}</p>
           <div className={styles.actions}>
-            <Link to={ROUTES.shop} className={styles.primary} onClick={dismiss}>
+            <Link to={ROUTES.care} className={styles.primary} onClick={dismiss}>
               {t('promo.cta')}
             </Link>
             <Button type="button" variant="ghost" onClick={dismiss}>

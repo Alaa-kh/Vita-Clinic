@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { findUserById } from '../data/db.js'
 import type { UserRole } from '../types.js'
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'barq-hub-dev-secret-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET ?? 'vita-hub-dev-secret-change-in-production'
 
 export interface AuthTokenPayload {
   sub: string
@@ -61,22 +61,19 @@ export function requireAuth(req: AuthenticatedRequest, res: Response, next: Next
   }
 }
 
-export function requireMerchant(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
+export function requireProvider(req: AuthenticatedRequest, res: Response, next: NextFunction): void {
   if (!req.user) {
     res.status(401).json({ message: 'Authentication required', code: 'UNAUTHORIZED' })
     return
   }
 
-  if (req.user.role !== 'merchant' && req.user.role !== 'admin') {
-    res.status(403).json({ message: 'Merchant role required', code: 'FORBIDDEN' })
+  if (req.user.role !== 'provider') {
+    res.status(403).json({ message: 'Provider role required', code: 'FORBIDDEN' })
     return
   }
 
   next()
 }
-
-/** @deprecated use requireMerchant */
-export const requireProvider = requireMerchant
 
 export function optionalAuth(req: AuthenticatedRequest, _res: Response, next: NextFunction): void {
   const header = req.headers.authorization

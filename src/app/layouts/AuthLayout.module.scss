@@ -3,7 +3,10 @@
   display: grid;
   place-items: center;
   padding: var(--space-5);
-  background: var(--page-gradient);
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 20%, rgb(0 163 181 / 22%), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 80%, rgb(240 122 58 / 14%), transparent 50%),
+    linear-gradient(145deg, #0a4f58 0%, #126570 45%, #0f2a30 100%);
   animation: auth-shell-in 700ms var(--ease-out) both;
   position: relative;
   overflow: hidden;
@@ -17,13 +20,18 @@
   animation: auth-item-in 480ms var(--ease-out) 200ms both;
 }
 
+.themeSlot button {
+  color: var(--color-ink-inverse);
+  background: rgb(15 42 48 / 50%);
+}
+
 .shell::before {
   content: '';
   position: absolute;
-  inset: -12%;
+  inset: -10%;
   background:
-    radial-gradient(circle at 18% 28%, color-mix(in srgb, var(--color-promo) 16%, transparent), transparent 40%),
-    radial-gradient(circle at 82% 72%, color-mix(in srgb, var(--color-accent) 14%, transparent), transparent 42%);
+    radial-gradient(circle at 18% 28%, rgb(12 138 154 / 20%), transparent 38%),
+    radial-gradient(circle at 82% 72%, rgb(15 42 48 / 28%), transparent 42%);
   animation: float-y 10s ease-in-out infinite alternate;
   pointer-events: none;
 }
@@ -32,16 +40,15 @@
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, transparent 60%, color-mix(in srgb, var(--color-bg) 55%, transparent)),
-    radial-gradient(circle at center, transparent 40%, color-mix(in srgb, var(--color-ink) 8%, transparent) 100%);
+  background: radial-gradient(circle at center, transparent 35%, rgb(0 0 0 / 24%) 100%);
   pointer-events: none;
+  animation: fade-in 900ms var(--ease-out) both;
 }
 
 @keyframes auth-shell-in {
   from {
     opacity: 0;
-    filter: brightness(0.85);
+    filter: brightness(0.7);
   }
   to {
     opacity: 1;
@@ -65,6 +72,7 @@
     padding: var(--space-3);
     align-items: start;
     padding-block: var(--space-8) var(--space-4);
+    background-attachment: scroll;
   }
 
   .themeSlot {
@@ -76,6 +84,7 @@
 @media (prefers-reduced-motion: reduce) {
   .shell,
   .shell::before,
+  .shell::after,
   .themeSlot {
     animation: none;
   }
