@@ -13,7 +13,7 @@ function readEnv(key: keyof ImportMetaEnv): string | undefined {
 }
 
 export const config: AppConfig = {
-  apiBaseUrl: readEnv('VITE_API_BASE_URL') ?? '/api',
+  apiBaseUrl: readEnv('VITE_API_BASE_URL') || '/api',
   appName: readEnv('VITE_APP_NAME') ?? 'BARQ',
   apiTimeoutMs: 15_000,
   wsUrl: readEnv('VITE_WS_URL') ?? '',

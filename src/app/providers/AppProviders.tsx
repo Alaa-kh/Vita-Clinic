@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Provider } from 'react-redux'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 import { store } from '@/app/store/store'
 import { clearSession, updateTokens } from '@/features/auth/store/authSlice'
 import { bindAuthTokenHandlers } from '@/shared/api/apiClient'
@@ -43,9 +43,7 @@ export function AppProviders({ children }: AppProvidersProps) {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}>
-            {children}
-          </BrowserRouter>
+          <HashRouter>{children}</HashRouter>
         </ThemeProvider>
       </QueryClientProvider>
     </Provider>
